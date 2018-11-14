@@ -1,0 +1,89 @@
+---
+title: "Summarize Data Frames"
+author: "bhakyuz"
+date: "October 3, 2018"
+output: 
+  html_document:
+    theme: united
+    highlight: tango
+    df_print: paged
+    max.print: 20
+---
+
+# Context
+In everyday task, we often have dataframes that we need to present in someways. For instance, the countries that our company is active, and how many users we have from each country. Even though it seems uncomplicated task, once we have more than certain amount countries that we want to present in a table or a bar chart, it gets quite dirty and it is necessary to cut the dataframe based on some parameters. Simple solution would be keeping **X** number of the rows and collection all other sources in a new category such as `others`. So the question is how to decide the number of rows **X**.
+
+```{r include=FALSE}
+library(magrittr)
+```
+
+## Imaginary Case
+Let's think about a car pieces manufacturer and its production units in millions for each each brand. We can build a simple data frame by using wellknown `mtcars` dataset.
+
+```{r}
+# Lets shape a bit mtcars data by using dplyr
+mtcars2 <- mtcars %>%
+  dplyr::mutate(
+    automobile = rownames(mtcars),
+    brand = stringi::stri_replace_all(automobile, replacement = "", regex = " .*")
+    )
+# second group the brands and generate arbitrary productions for each brand
+set.seed(222) # for reproducibility
+mtcars.grouped <- mtcars2 %>%
+  dplyr::group_by(brand) %>%
+  dplyr::summarise(nb_of_models = dplyr::n_distinct(automobile) ) %>%
+  dplyr::mutate(total_production = sample(1:200, length(brand))) %>%
+  dplyr::arrange(total_production) %>%
+  dplyr::mutate(
+    brand = factor(brand, levels = brand),
+    production_percentage = round(total_production / sum(total_production) * 100, 1),
+    label = paste(total_production, "-",round(production_percentage), "%", sep = "")
+    )
+```
+
+This will give us a quite simple dataframe of brands and productions. So the manufacturer has 22 brands sold in total. 
+```{r, echo=FALSE, include=TRUE, fig.width = 12, fig.align = 'center', fig.height=6}
+library(ggplot2)
+mtcars.grouped %>% 
+  ggplot(aes(brand, total_production)) + 
+  geom_col() +
+  geom_text(aes(label = label), position = "stack", hjust = 0) +
+#  geom_text(aes(label = label), color = "white", nudge_x = 1, hjust = "outward") +
+  coord_flip() + ggtitle("Production per Brand")
+
+```
+
+Here is the question: **Is this table really interesting to present?**
+Dodge, Hornet, AMC seems like the brand that we made the most production then others go on. Do we really want to Mazda and Crysler in this report? Notice they are at very end of the list and they do not even sum up to 1% together. Is there anyway that we can smartly group our brands and show focus only on most important ones? 
+
+# Idea
+Group the minor categories into `other` category in a way that, `other category` is not more important than non-grouped categories.  
+
+Lets try to find cumulated numbes
+```{r}
+mtcars.grouped <- mtcars.grouped %>%
+  dplyr::mutate(
+    cum_production = cumsum(total_production),
+    cum_percentage = cumsum(production_percentage) 
+                ) %>%
+  dplyr::rowwise() %>%
+  dplyr::mutate(
+    # limit to max to have coherent plot
+    cum_production = min(cum_production, max(mtcars.grouped$total_production)),
+    cum_percentage = min(cum_percentage, max(mtcars.grouped$production_percentage))
+                    )
+```
+
+```{r, echo=FALSE, include=TRUE, fig.width = 12, fig.align = 'center', fig.height=6}
+library(ggplot2)
+mtcars.grouped %>% 
+  ggplot() + 
+  geom_col(aes(brand, cum_production), fill = "red") +
+  geom_col(aes(brand, total_production)) +
+  geom_text(aes(brand, total_production, label = label), position = "stack", hjust = 0) +
+#  geom_text(aes(label = label), position = "stack", hjust = 0) +
+#  geom_text(aes(label = label), color = "white", nudge_x = 1, hjust = "outward") +
+  coord_flip() + ggtitle("Production per Brand")
+
+```
+
