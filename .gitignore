@@ -1,1 +1,6 @@
 *.html
+/gamma-powerco/data/**
+/gamma-powerco/images/**
+/gamma-powerco/*.pdf
+/gamma-powerco/*.csv
+
