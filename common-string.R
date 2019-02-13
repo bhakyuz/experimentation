@@ -49,28 +49,24 @@ expressions2 <-
 
 
 s <- "ahmet send you a request for tatata totoo"
-common <- c("send you", "request for")
+common <- common_expressions$expression
+# common <- c("send you", "request for")
 
 keep_only_common <- function(s, common){
   len <- stringi::stri_length(s)
-  empty <- paste0(rep("#", len), collapse = "")
-  s2 <- s
-  c <- stringi::stri_locate_first_fixed(s, common)
-  # c[,3] <-  c[,2] - c[,1] + 1
-  
-  for(i in 1:nrow(c)){
-    stringi::stri_sub(s2, c[i, 1], c[i, 2]) <- paste0(rep("#", c[i, 2]-c[i, 1]+1), collapse = "")
-  }
-  c3 <-  stri_locate_all_regex(str = s2, pattern = "#+")[[1]]
-  for(i in 1:nrow(c3)){
-    stringi::stri_sub(empty, c3[i, 1], c3[i, 2]) <- stringi::stri_sub(s, c3[i, 1], c3[i, 2])
+  empty <- stringi::stri_join(rep("#", len), collapse = "")
+  matches <- stringi::stri_locate_first_fixed(s, common)
+
+  for(i in 1:nrow(matches)){
+    stringi::stri_sub(empty, matches[i, 1], matches[i, 2]) <- 
+      stringi::stri_sub(s, matches[i, 1], matches[i, 2]) 
   }
   final <- stringi::stri_replace_all_regex(empty, pattern = "#+", replacement = " # ")
   return(stringi::stri_trim(final))
 }
 
 keep_only_common(s, common)
-df2 <- df %>%
+df2 <- dplyr::bind_rows(df,df,df,df,df,df,df,df,df,df,df,df,df,df,df) %>%
   rowwise() %>%
   mutate(sentence_common = keep_only_common(sentence, common[3:4]))
 
