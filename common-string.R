@@ -52,6 +52,8 @@ s <- "ahmet send you a request for tatata totoo"
 common <- c("send you", "request for")
 
 keep_only_common <- function(s, common){
+  len <- stringi::stri_length(s)
+  empty <- paste0(rep("#", len), collapse = "")
   s2 <- s
   c <- stringi::stri_locate_first_fixed(s, common)
   # c[,3] <-  c[,2] - c[,1] + 1
@@ -59,14 +61,11 @@ keep_only_common <- function(s, common){
   for(i in 1:nrow(c)){
     stringi::stri_sub(s2, c[i, 1], c[i, 2]) <- paste0(rep("#", c[i, 2]-c[i, 1]+1), collapse = "")
   }
-  # TODO with similar for up there, loop again in c
-  
-  c2 <- stri_locate_all_regex(str = s2, pattern = "(?!#)")[[1]]
-  for(i in 1:nrow(c2)){
-    stringi::stri_sub(s, c2[i, 1], c2[i, 1]) <- "#"
+  c3 <-  stri_locate_all_regex(str = s2, pattern = "#+")[[1]]
+  for(i in 1:nrow(c3)){
+    stringi::stri_sub(empty, c3[i, 1], c3[i, 2]) <- stringi::stri_sub(s, c3[i, 1], c3[i, 2])
   }
-  final <- stringi::stri_replace_all_regex(s, pattern = "#+", replacement = " # ")
-  
+  final <- stringi::stri_replace_all_regex(empty, pattern = "#+", replacement = " # ")
   return(stringi::stri_trim(final))
 }
 
