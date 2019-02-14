@@ -68,7 +68,9 @@ keep_only_common <- function(s, common){
 keep_only_common(s, common)
 df2 <- dplyr::bind_rows(df,df,df,df,df,df,df,df,df,df,df,df,df,df,df) %>%
   rowwise() %>%
-  mutate(sentence_common = keep_only_common(sentence, common[3:4]))
+  mutate(sentence_common = keep_only_common(sentence, common))
 
-
+microbenchmark::microbenchmark(
+  a <- for (i in 1:100) keep_only_common(s, common)
+)
    
