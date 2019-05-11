@@ -9,6 +9,8 @@ library(dplyr)
 # install if not already installed in order to make it simpler to manipulate
 library(ggplot2)
 
+# some inspiration 
+# https://datavizf18.classes.andrewheiss.com/class/06-class/
 
 raw_data <- readxl::read_xls("datane.xls", sheet = 1, 
                              col_types = c("date", "numeric", "numeric", "numeric"))
