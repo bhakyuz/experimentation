@@ -8,14 +8,21 @@ df <- data.frame(s = s, fingerprint = fingerprint(s), stringsAsFactors = F)
 
 df <- 
   df %>% 
+  dplyr::mutate(l = nchar(s)) %>%
   dplyr::group_by(s) %>%
-  dplyr::mutate(c0 = dplyr::n()) %>%
+  dplyr::mutate(count = dplyr::n()) %>%
   dplyr::group_by(fingerprint, s) %>%
-  dplyr::mutate(c = dplyr::n()) %>%
+  dplyr::mutate(count_combination = dplyr::n()) %>%
   dplyr::group_by(fingerprint) %>% 
-  dplyr::mutate(u = dplyr::last(s, order_by = c, )) %>%
+  dplyr::mutate(value_to_keep = dplyr::last(s, order_by = count, )) %>%
   dplyr::ungroup() %>%
-  dplyr::mutate(change = u == s) 
+  dplyr::mutate(will_be_updated = !value_to_keep == s) 
 
+# paste(df$s[!df$change], df$u[!df$change], sep = ">", collapse = " ")
 
-paste(df$s[!df$change], df$u[!df$change], sep = ">", collapse = " ")
+df %>%
+  dplyr::filter(will_be_updated) %>%
+  dplyr::mutate(prio_to_update = (count + count_combination * .01 + l * .001) / nrow(df) ) %>%
+  dplyr::arrange(dplyr::desc(prio_to_update), dplyr::desc(count), dplyr::desc(count_combination), l) %>%
+#   dplyr::select(s, fingerprint, value_to_keep) %>% 
+  dplyr::distinct()
