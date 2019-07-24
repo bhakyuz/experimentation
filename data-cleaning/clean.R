@@ -26,3 +26,19 @@ df %>%
   dplyr::arrange(dplyr::desc(prio_to_update), dplyr::desc(count), dplyr::desc(count_combination), l) %>%
 #   dplyr::select(s, fingerprint, value_to_keep) %>% 
   dplyr::distinct()
+
+
+get_user_decision <- function(placeholder){ 
+  input <- readline(prompt = paste0(placeholder, "y/n or the value desired: "))
+  if(tolower(input) == "y")
+  {
+    return(T)
+  } else {
+    if(tolower(input) == "n")
+    {
+      return(F)
+    }
+  }
+  
+  return(input)
+}
