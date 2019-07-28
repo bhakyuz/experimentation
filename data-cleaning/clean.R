@@ -28,17 +28,22 @@ df %>%
   dplyr::distinct()
 
 
-get_user_decision <- function(placeholder){ 
-  input <- readline(prompt = paste0(placeholder, "y/n or the value desired: "))
+get_user_decision <- function(x = "NoT CleAn ", replacement = "Clean"){
+  input <- readline(prompt = paste0("Wanna replace '", x, "' with '", replacement,  "': y/n or the value desired: "))
   if(tolower(input) == "y")
   {
-    return(T)
+    res <- replacement
+    attributes(res) <- list(to_replace = T)
   } else {
     if(tolower(input) == "n")
     {
-      return(F)
+      res <- x
+      attributes(res) <- list(to_replace = F)
+    } else {
+      res <- input
+      attributes(res) <- list(to_replace = NULL)
     }
   }
   
-  return(input)
+  return(res)
 }
