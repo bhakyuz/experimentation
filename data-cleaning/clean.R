@@ -1,10 +1,11 @@
 library(magrittr)
+# imagine following function can be provided by user as well
 fingerprint <- function(s) tolower(trimws(s))
 
 s <- c("ahmet","Ahmet","ahmet","Ahmet","Ahmet ","ahmET","Ahmet")
 s2 <- s
 fingerprint(s)
-cleaning <- function(s = s2){
+cleaning <- function(s = s2, ask_user = T){
   df <- data.frame(s = s, fingerprint = fingerprint(s), stringsAsFactors = F)
   
   df <- 
@@ -15,6 +16,9 @@ cleaning <- function(s = s2){
     dplyr::group_by(fingerprint, s) %>%
     dplyr::mutate(count_combination = dplyr::n()) %>%
     dplyr::group_by(fingerprint) %>% 
+    # value_to_keep is based on the original data for now but this 
+    # ideally this might be provided by user 
+    # so it is more reproducible
     dplyr::mutate(value_to_keep = dplyr::last(s, order_by = count, )) %>%
     dplyr::ungroup() %>%
     dplyr::mutate(will_be_updated = !value_to_keep == s) 
@@ -35,7 +39,7 @@ cleaning <- function(s = s2){
   for (i in 1:nrow(to_update)) {
     to_update$final_value_to_keep[i] <- should_replace_string(
       x = to_update$s[i], 
-      replacement = to_update$value_to_keep[i])
+      replacement = to_update$value_to_keep[i], ask_user)
   }
   
   df2 <- dplyr::left_join(
@@ -46,9 +50,13 @@ cleaning <- function(s = s2){
   res <- dplyr::coalesce(df2$final_value_to_keep, df2$s)
   return(res)
 }
+cleaning()
+should_replace_string <- function(x = "NoT CleAn ", replacement = "Clean", ask_user = T){
+  
+  if(is.logical(ask_user) & ask_user) {
+    input <- readline(prompt = paste0("Wanna replace '", x, "' with '", replacement,  "': y/n or the value desired: "))
+  } else input <- "y"
 
-should_replace_string <- function(x = "NoT CleAn ", replacement = "Clean"){
-  input <- readline(prompt = paste0("Wanna replace '", x, "' with '", replacement,  "': y/n or the value desired: "))
   if(tolower(input) == "y")
   {
     res <- replacement
