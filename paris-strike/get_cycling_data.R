@@ -22,6 +22,7 @@ cycling <- cycling_raw %>%
   ) %>%
   dplyr::mutate(
     date = lubridate::date(timestamp),
+    time = format.Date(timestamp, format = "%H:%M"),
     wday = lubridate::wday(date, week_start = 1),
     is_weekend = if_else(wday >= 6 & wday <= 7, 1, 0),
     location_latitude = sub(pattern = ',.+', '', location_coordinates),
@@ -44,5 +45,7 @@ cycling_daily <- cycling %>%
     location_latitude, 
     location_longitude
     ) %>%
-  dplyr::summarise(count_daily = sum(count_hourly)) %>%
+  dplyr::summarise(
+    count_daily = sum(count_hourly)
+    ) %>%
   dplyr::ungroup()
