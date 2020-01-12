@@ -39,3 +39,39 @@ cycling_during_strike_per_day <- cycling_during_strike %>%
   )
 head(cycling_during_strike_per_day)
 
+cycling_per_hour_during_strike <- cycling %>%
+  dplyr::filter(
+    date >= strike_start - lubridate::ddays(1),
+    date <= strike_end - lubridate::ddays(1)
+  ) %>%
+  dplyr::group_by(
+    wday,
+    time,
+    is_weekend
+  ) %>%
+  dplyr::summarise(
+    count_daily_avg = sum(count_hourly) / n_distinct(date)
+  ) %>%
+  dplyr::ungroup()
+
+cycling_per_hour_during_strike_yoy <- cycling %>%
+  dplyr::filter(
+    date >= strike_start - lubridate::ddays(1) - lubridate::dyears(1) ,
+    date <= strike_end - lubridate::ddays(1) - lubridate::dyears(1) 
+  ) %>%
+  dplyr::group_by(
+    wday,
+    time,
+    is_weekend
+  ) %>%
+  dplyr::summarise(
+    count_daily_avg = sum(count_hourly) / n_distinct(date)
+  ) %>%
+  dplyr::ungroup()
+
+cycling_per_hour_during_strike <-
+  cycling_per_hour_during_strike %>% 
+  dplyr::left_join(
+    dplyr::select(cycling_per_hour_during_strike_yoy, wday, time, is_weekend, count_daily_avg_yoy = count_daily_avg), 
+    by = c('wday','time', 'is_weekend')
+  )

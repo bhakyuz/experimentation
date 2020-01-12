@@ -22,9 +22,11 @@ cycling <- cycling_raw %>%
   ) %>%
   dplyr::mutate(
     date = lubridate::date(timestamp),
-    time = format.Date(timestamp, format = "%H:%M"),
+    time = format(timestamp, format = "%H:%M:%S"),
+    time = factor(time),
     wday = lubridate::wday(date, week_start = 1),
     is_weekend = if_else(wday >= 6 & wday <= 7, 1, 0),
+    wday = lubridate::wday(date, week_start = 1, label = T, abbr = F, locale = 'C.UTF-8'),
     location_latitude = sub(pattern = ',.+', '', location_coordinates),
     location_latitude = as.numeric(location_latitude),
     location_longitude = sub(pattern = '.+,', '', location_coordinates),
