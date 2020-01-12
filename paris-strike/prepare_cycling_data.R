@@ -33,47 +33,12 @@ cycling_during_strike_per_day <- cycling_during_strike %>%
     ) %>%
   dplyr::ungroup()
 
-
 ggplot(cycling_during_strike_per_day, aes(x = date, y = count_daily)) +
-  # change bg color when weekend
-#  geom_col(aes(y=is_weekend * max(cycling_during_strike_per_day$count_daily)), fill="peachpuff2") +
-  geom_col(aes(y=is_weekend * max(count_daily)), color="peachpuff2", fill ="peachpuff2", width = 1) +
-  geom_vline(xintercept = lubridate::date(strike_start), color = 'lightseagreen') +
-  geom_line() +
-  annotate("text", x = lubridate::date(strike_start), y = Inf, label = "Beginning of strike", vjust = 2, hjust = -0.1, size = 4)
-#  geom_tile(
-  #    aes(fill = as.factor(is_weekend), y = 200000)
-  #  ) 
-
-ggplot(cycling_during_strike_per_day, aes(x = date, y = count_daily)) +
-  geom_col(aes(y=is_weekend * max(count_daily)), fill="peachpuff2", linetype = 2)
-
-weeks <- cycling_during_strike_per_day %>%
-  mutate(week = lubridate::floor_date(date, 'week',  week_start = 1)) %>%
-  group_by(week, is_weekend) %>%
-  summarise(start = min(date), end = max(date)) %>%
-  ungroup()
-
-ggplot(cycling_during_strike_per_day, aes(x = date, y = count_daily)) +
-  geom_tile(aes(y = is_weekend * 20000, fill=as.factor(is_weekend)), colour="peachpuff2")
-
-ggplot(cycling_during_strike_per_day) +
-  geom_rect(
-    aes(xmin = start, xmax = end, fill = as.factor(is_weekend)), 
-    ymin = -Inf, ymax = Inf, alpha = 0.2, 
-  )
-
-ggplot(cycling_during_strike_per_day) +
-  geom_tile(
-    aes(x = date, y = is_weekend * 20000)
-  )
-
-ggplot(cycling_during_strike_per_day) +
-  geom_tile(
-    aes(xmin = start, xmax = end, fill = as.factor(is_weekend)), 
-    ymin = -Inf, ymax = Inf, alpha = 0.2, 
-  )
-# dplyr::group_by(cycling_during_strike_per_day, is_weekend, )
+  geom_col(aes(y=is_weekend * max(count_daily)), color="cornsilk3", fill ="cornsilk3", width = 1, alpha = 0.5, size = 0) +
+  geom_vline(xintercept = lubridate::date(strike_start), color = 'cornsilk4') +
+  geom_line(aes(y = count_daily, colour = "Nb of cyclist")) +
+  geom_line(aes(y = count_mom, colour = "Nb of cyclist: Last month")) +
+  geom_line(aes(y = count_yoy, colour = "Nb of cyclist: Last year")) +
   
-#  geom_smooth(method = 'loess')
-#  geom_line(linejoin = 'round', lineend ='round')
+  annotate("text", x = lubridate::date(strike_start), y = Inf, label = "Beginning of strike", vjust = 2, hjust = -0.05, size = 4)
+
