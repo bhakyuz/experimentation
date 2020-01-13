@@ -74,4 +74,19 @@ cycling_per_hour_during_strike <-
   dplyr::left_join(
     dplyr::select(cycling_per_hour_during_strike_yoy, wday, time, is_weekend, count_daily_avg_yoy = count_daily_avg), 
     by = c('wday','time', 'is_weekend')
-  )
+  ) 
+
+cycling_per_hour_during_strike_weekend_vs_week <-
+  cycling_per_hour_during_strike %>% 
+  dplyr::group_by(
+    time,
+    is_weekend
+  ) %>%
+  dplyr::summarise(
+    count_daily_avg = sum(count_daily_avg) / n_distinct(wday),
+    count_daily_avg_yoy = sum(count_daily_avg_yoy) / n_distinct(wday)
+  ) %>%
+  dplyr::mutate(
+    label = factor(is_weekend, levels = 0:1, labels = c('Weekdays', 'Weekend'))
+  ) %>%
+  dplyr::ungroup()
