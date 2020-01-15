@@ -90,3 +90,19 @@ cycling_per_hour_during_strike_weekend_vs_week <-
     label = factor(is_weekend, levels = 0:1, labels = c('Weekdays', 'Weekend'))
   ) %>%
   dplyr::ungroup()
+
+
+cycling_during_strike_per_counter_location <- cycling_daily %>%
+  dplyr::filter(
+    date >= strike_start - lubridate::ddays(1), # see data starting from a bit earlier
+    date <= strike_end
+  ) %>%
+  dplyr::group_by(
+    location_id,
+    location_latitude,
+    location_longitude  
+  ) %>%
+  dplyr::summarise(
+    count_daily_avg = sum(count_daily) / n_distinct(date)
+  )
+
