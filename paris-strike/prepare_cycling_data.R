@@ -99,10 +99,12 @@ cycling_during_strike_per_counter_location <- cycling_daily %>%
   ) %>%
   dplyr::group_by(
     location_id,
+    location_name,
     location_latitude,
     location_longitude  
   ) %>%
   dplyr::summarise(
     count_daily_avg = sum(count_daily) / n_distinct(date)
-  )
+  ) %>%
+  dplyr::ungroup()
 
